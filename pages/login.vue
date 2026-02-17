@@ -13,9 +13,7 @@
         Free accounts via Supabase Auth. After login you’ll choose Teacher or Student.
       </p>
 
-      <p v-if="msg" style="color:#ffb;">
-        {{ msg }}
-      </p>
+      <p v-if="msg" style="color:#ffb;">{{ msg }}</p>
     </div>
   </div>
 </template>
@@ -41,9 +39,8 @@ async function signIn() {
     email: email.value,
     password: password.value,
   });
-
   if (error) msg.value = error.message;
-  else await navigateTo("/");
+  else navigateTo("/");
 }
 </script>
 
