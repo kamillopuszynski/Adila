@@ -1,15 +1,20 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  // Prevent SSR/runtime crashes on Cloudflare
+  // Cloudflare SSR safety
   if (process.server) return;
 
-  const supabase = useSupabase();
-
-  const { data } = await supabase.auth.getSession();
-  const session = data.session;
-
+  // Don't run auth guard on public routes (prevents pointless calls + avoids crashes on /login)
   const publicPages = ["/login"];
-  if (!session && !publicPages.includes(to.path)) return navigateTo("/login");
-  if (!session) return;
+  if (publicPages.includes(to.path)) return;
+
+  const supabase = useSupabaseClient();
+
+  // Extra safety (if module not initialized for some reason)
+  if (!supabase?.auth) return navigateTo("/login");
+
+  const { data, error } = await supabase.auth.getSession();
+  const session = data?.session;
+
+  if (!session) return navigateTo("/login");
 
   const { data: profile } = await supabase
     .from("profiles")
