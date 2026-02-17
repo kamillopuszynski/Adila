@@ -21,22 +21,29 @@
 </template>
 
 <script setup lang="ts">
-const supabase = useSupabase();
+const supabase = useSupabaseClient();
 const email = ref("");
 const password = ref("");
 const msg = ref("");
 
 async function signUp() {
   msg.value = "";
-  const { error } = await supabase.auth.signUp({ email: email.value, password: password.value });
+  const { error } = await supabase.auth.signUp({
+    email: email.value,
+    password: password.value,
+  });
   msg.value = error ? error.message : "Check your email (if confirmation is enabled) or sign in.";
 }
 
 async function signIn() {
   msg.value = "";
-  const { error } = await supabase.auth.signInWithPassword({ email: email.value, password: password.value });
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.value,
+    password: password.value,
+  });
+
   if (error) msg.value = error.message;
-  else navigateTo("/");
+  else await navigateTo("/");
 }
 </script>
 
