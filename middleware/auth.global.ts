@@ -1,26 +1,22 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  // Cloudflare SSR safety
-  if (process.server) return;
-
-  // Don't run auth guard on public routes (prevents pointless calls + avoids crashes on /login)
-  const publicPages = ["/login"];
-  if (publicPages.includes(to.path)) return;
-
   const supabase = useSupabaseClient();
+  const user = useSupabaseUser();
 
-  // Extra safety (if module not initialized for some reason)
-  if (!supabase?.auth) return navigateTo("/login");
+  const publicPages = ["/login"];
+  if (!user.value && !publicPages.includes(to.path)) return navigateTo("/login");
+  if (!user.value) return;
 
-  const { data, error } = await supabase.auth.getSession();
-  const session = data?.session;
+  // Allow onboarding without profile
+  if (to.path === "/onboarding") return;
 
-  if (!session) return navigateTo("/login");
-
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.value.id)
     .maybeSingle();
 
-  if (!profile && to.path !== "/onboarding") return navigateTo("/onboarding");
+  // If table is missing / RLS blocks / any error, don’t hard-crash SSR
+  if (error) return;
+
+  if (!profile) return navigateTo("/onboarding");
 });
