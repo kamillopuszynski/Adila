@@ -3,8 +3,11 @@ export default defineNuxtConfig({
   nitro: { preset: "cloudflare-pages" },
   runtimeConfig: {
     public: {
-      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
-      supabaseAnonKey: process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY,
+      // These will be filled automatically from Cloudflare env vars:
+      // NUXT_PUBLIC_SUPABASE_URL
+      // NUXT_PUBLIC_SUPABASE_ANON_KEY
+      supabaseUrl: "",
+      supabaseAnonKey: "",
     },
   },
 });
