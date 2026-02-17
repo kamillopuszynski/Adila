@@ -1,5 +1,9 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Prevent SSR/runtime crashes on Cloudflare
+  if (process.server) return;
+
   const supabase = useSupabase();
+
   const { data } = await supabase.auth.getSession();
   const session = data.session;
 
